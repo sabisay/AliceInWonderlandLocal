@@ -32,9 +32,8 @@ answer_grader_prompt = """QUESTION: \n\n {question} \n\n STUDENT ANSWER: {genera
 Return JSON with two two keys, binary_score is 'yes' or 'no' score to indicate whether the STUDENT ANSWER meets the criteria. And a key, explanation, that contains an explanation of the score."""
 
 # Test
-question = "What are the vision models released today as part of Llama 3.2?"
-answer = "The Llama 3.2 models released today include two vision models: Llama 3.2 11B Vision Instruct and Llama 3.2 90B Vision Instruct, which are available on Azure AI Model Catalog via managed compute. These models are part of Meta's first foray into multimodal AI and rival closed models like Anthropic's Claude 3 Haiku and OpenAI's GPT-4o mini in visual reasoning. They replace the older text-only Llama 3.1 models."
-
+question = "What advice did the Caterpillar give Alice when they first met?"
+answer = "The Caterpillar advised Alice to keep her temper and suggested that eating from one side of the mushroom would make her grow taller, while eating from the other side would make her shorter."
 # Test using question and generation from above
 answer_grader_prompt_formatted = answer_grader_prompt.format(
     question=question, generation=answer
