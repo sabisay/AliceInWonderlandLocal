@@ -31,24 +31,64 @@
 
 <h5>setting up embeddings and creating chunks:</h5>
 <pre>
-    //Load the document from the .md file
+    // Load the document from the .md file
     with open(r'yourFilePath.md', 'r', encoding='utf-8') as file: 
     document = file.read()
-    //Split the document into chunks
+    // Split the document into chunks
     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=1000, chunk_overlap=200
     )
     doc_splits = text_splitter.split_documents([document])
+    
     // Local Embedding Setup
     local_embedding = LocalEmbedding(model="nomic-embed-text-v1.5", inference_mode="local")
     vectorstore_local = SKLearnVectorStore.from_documents(
     documents=doc_splits,
     embedding=local_embedding,
     )
+    
     // API Embedding Setup (e.g., OpenAI)
     openai_embedding = OpenAIEmbeddings(model="text-embedding-ada-002")
     vectorstore_openai = SKLearnVectorStore.from_documents(
     documents=doc_splits,
     embedding=openai_embedding,
     )
+
+    // Qdrant Embedding Setup
+    from qdrant_client import QdrantClient
+    from qdrant_client.models import VectorParams, Distance
+    from langchain.embeddings import OpenAIEmbeddings  # or any other embeddings
+    from langchain.vectorstores import Qdrant
+
+    // Initialize Qdrant client
+    qdrant_client = QdrantClient(url="http://localhost:6333")  // replace with your Qdrant server URL if necessary
+
+    // Create a new collection in Qdrant (or use an existing one)
+    collection_name = "my_vector_store"
+    qdrant_client.create_collection(
+    collection_name=collection_name,
+    vectors_config=VectorParams(size=1536, distance=Distance.COSINE)  // Adjust size and distance based on your embeddings
+    )
+
+    // Create vector store using Qdrant
+    qdrant_vectorstore = Qdrant.from_documents(
+    documents=doc_splits,
+    embedding=openai_embedding,  // You can use any other embedding model
+    client=qdrant_client,
+    collection_name=collection_name
+    )
+</pre>
+
+<h5>Setting up Environment Variables and Search Tool (OPTIONAL):</h5>
+<pre>
+    def _set_env(var: str):
+        if not os.environ.get(var):
+            os.environ[var] = getpass.getpass(f"{var}: ")
+    _set_env("TAVILY_API_KEY")
+    _set_env("LANGSMITH_API_KEY")
+    os.environ["TOKENIZERS_PARALLELISM"] = "true"
+    os.environ["LANGCHAIN_TRACING_V2"] = "true"
+    os.environ["LANGCHAIN_PROJECT"] = "local-llama32-rag"
+    os.environ["USER_AGENT"] = "MyCustomAgent/1.0"
+    web_search_tool = TavilySearchResults(k=3)
 </pre>
