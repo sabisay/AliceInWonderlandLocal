@@ -38,38 +38,32 @@
     text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
     chunk_size=1000, chunk_overlap=200
     )
-    doc_splits = text_splitter.split_documents([document])
-    
+    doc_splits = text_splitter.split_documents([document]) </br>
     // Local Embedding Setup
     local_embedding = LocalEmbedding(model="nomic-embed-text-v1.5", inference_mode="local")
     vectorstore_local = SKLearnVectorStore.from_documents(
     documents=doc_splits,
     embedding=local_embedding,
-    )
-    
+    )</br>
     // API Embedding Setup (e.g., OpenAI)
     openai_embedding = OpenAIEmbeddings(model="text-embedding-ada-002")
     vectorstore_openai = SKLearnVectorStore.from_documents(
     documents=doc_splits,
     embedding=openai_embedding,
-    )
-
+    )</br>
     // Qdrant Embedding Setup
     from qdrant_client import QdrantClient
     from qdrant_client.models import VectorParams, Distance
     from langchain.embeddings import OpenAIEmbeddings  # or any other embeddings
-    from langchain.vectorstores import Qdrant
-
+    from langchain.vectorstores import Qdrant</br>
     // Initialize Qdrant client
-    qdrant_client = QdrantClient(url="http://localhost:6333")  // replace with your Qdrant server URL if necessary
-
+    qdrant_client = QdrantClient(url="http://localhost:6333")  // replace with your Qdrant server URL if necessary</br>
     // Create a new collection in Qdrant (or use an existing one)
     collection_name = "my_vector_store"
     qdrant_client.create_collection(
     collection_name=collection_name,
     vectors_config=VectorParams(size=1536, distance=Distance.COSINE)  // Adjust size and distance based on your embeddings
-    )
-
+    )</br>
     // Create vector store using Qdrant
     qdrant_vectorstore = Qdrant.from_documents(
     documents=doc_splits,
